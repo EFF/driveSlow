@@ -1,14 +1,14 @@
 MainController = ($scope, $timeout) ->
-    $scope.i = 0
-
     _notSupported = () ->
         window.alert 'geolocation is not supported'
 
     _alertPosition = (pos) ->
-        $scope.coords = JSON.stringify pos.coords
-        $scope.i++
-        $scope.$apply()
+        console.log pos
+        $scope.$apply () ->
+            $scope.coords = pos.coords
+            $scope.i++
+        console.log $scope.coords
 
-    window.navigator.geolocation.watchPosition _alertPosition, _notSupported, {enableHighAccuracy: true, timeout:500}
+    window.navigator.geolocation.watchPosition _alertPosition, _notSupported, {maximumAgeenableHighAccuracy: true, timeout: 1000}
 
 module.exports = MainController

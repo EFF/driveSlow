@@ -5,10 +5,12 @@ html(lang="en", ng-app="hack-app")
         link(href="/stylesheets/style.css", rel="stylesheet")
         link(href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css", rel="stylesheet")
     body
+        header
+            .speedContainer
+                p 50
+            .speedContainer
+                p 70
         #container(ng-controller="MainController")
-            h1 {{i}}
-            h1 {{coords}}
 
-        script(src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js")
         script(src="//ajax.googleapis.com/ajax/libs/angularjs/1.0.7/angular.min.js")
         script(src="/compiled.js")
