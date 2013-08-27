@@ -5,50 +5,41 @@ module.exports = (grunt) ->
             compile:
                 files: [{
                     expand: true
-                    cwd: './scripts/'
+                    cwd: './client/'
                     src: ['./**/*.coffee']
                     dest: './build/javascripts/'
                     ext: '.js'
                 }]
                 options:
                     bare: true
-        
         browserify:
             basic:
                 src: './build/javascripts/app.js'
-                dest: './build/bundle.js'
-        jade:
-            compile:
+                dest: './build/compiled.js'
+        watch:
+            client:
+                tasks: ['compile-client']
+                files: ['./client/**/*.coffee']
+        nodemon:
+            dev:
                 options:
-                    data:
-                        debug: true
-                files: [{
-                    expand: true
-                    cwd: './views/'
-                    src: '**/*.jade'
-                    dest: './build/views/'
-                    ext: '.html'
-                    }]
-        sass:
-            dist:
-                files:
-                    './build/style.css': ['./style/**/*.sass']
+                    file: './server/app.coffee'
+                    watchedFolders: ['server']
+                    watchedExtensions: ['coffee']
+        concurrent:
+            dev:
+                tasks: ['nodemon:dev', 'watch:client']
                 options:
-                    noCache: true
-
-        express:
-            custom:
-                options:
-                    port: 3000
-                    server: path.resolve './server/app'
-
+                    logConcurrentOutput: true
 
     grunt.initConfig config
 
     grunt.loadNpmTasks 'grunt-contrib-coffee'
     grunt.loadNpmTasks 'grunt-browserify'
-    grunt.loadNpmTasks 'grunt-contrib-jade'
-    grunt.loadNpmTasks 'grunt-contrib-sass'
-    grunt.loadNpmTasks 'grunt-express'
+    grunt.loadNpmTasks 'grunt-contrib-watch'
+    grunt.loadNpmTasks 'grunt-nodemon'
+    grunt.loadNpmTasks 'grunt-concurrent'
 
-    grunt.registerTask 'default', ['coffee:compile', 'browserify', 'express:custom', 'express-keepalive']
+    grunt.registerTask 'compile-client', ['coffee:compile', 'browserify']
+
+    grunt.registerTask 'default', ['compile-client', 'concurrent:dev']
