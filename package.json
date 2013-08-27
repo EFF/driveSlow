@@ -4,7 +4,9 @@
   "dependencies": {
     "jade": "~0.35.0",
     "express": "~3.3.5",
-    "stylus": "~0.37.0"
+    "stylus": "~0.37.0",
+    "request": "~2.27.0",
+    "async": "~0.2.9"
   },
   "devDependencies": {
     "grunt": "~0.4.1",
