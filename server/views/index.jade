@@ -5,12 +5,18 @@ html(lang="en", ng-app="hack-app")
         link(href="/stylesheets/style.css", rel="stylesheet")
         link(href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css", rel="stylesheet")
     body
-        header
-            .speedContainer
-                p 50
-            .speedContainer
-                p 70
-        #container(ng-controller="MainController")
+        header(ng-controller="MainController")
+            .col-xs-6.speedContainer
+                h5 Votre vitesse
+                div
+                    span.speed {{speed}}
+                    span.label km/h
+            .col-xs-6.speedContainer
+                h5 Limite permise
+                div
+                    span.speed {{limit}}
+                    span.label km/h
+        .map {{coords}}
 
         script(src="//ajax.googleapis.com/ajax/libs/angularjs/1.0.7/angular.min.js")
         script(src="/compiled.js")
