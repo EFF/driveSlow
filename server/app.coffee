@@ -34,24 +34,47 @@ app.get '/api/speed-limit', (req, res) ->
         key = 'Fmjtd%7Cluub2g01n9%2C8a%3Do5-9ub5gy'
         json = "{location:{latLng:{lat:#{latitude},lng:#{longitude}}}}"
         options =
+            json: true
             url: "http://open.mapquestapi.com/geocoding/v1/reverse?key=#{key}&json=#{json}"
+
         request options, (err, response, body) ->
             if err
                 callback err
             else
-                body = JSON.parse body
-                console.log body
                 if body.info.statuscode is 200 or body.info.statuscode is 0
                     callback null, body.results[0].locations[0].street
                 else
                     callback new Error('Something went wrong with MapQuest')
 
-    getSpeedLimit = (street, callback) ->
-        callback null, 30, street
+    getSpeedLimit = (latitude, longitude, street, callback) ->
+        query =
+            sort: [
+                {
+                    _geo_distance:
+                        geo:
+                            lat: latitude
+                            lng: longitude
+                }
+            ]
+            query:
+                match:
+                    specifique: street
+
+        options =
+            method: 'GET'
+            json: query
+            url: 'http://openify-api-staging.herokuapp.com/v0/datasets/7bbe7e06-d820-4481-ada2-2ad9bd955106:1/data'
+            qs:
+                fields: 'limite'
+                apiKey: 'a4a2d560-037c-11e3-a03f-f23c91aec05e'
+                secretKey: 'a4a2da2e-037c-11e3-a03f-f23c91aec05e'
+
+        request options, (err, response, body) ->
+            console.log 'asdasd', err, body
+            callback null, body.data[0].fields.limite, street
 
     sendResponse = (err, limit, street) ->
         res.charset = 'utf-8'
-        console.log err, limit, street
         if err
             res.json 500, {error: err}
         else
@@ -75,7 +98,7 @@ app.get '/api/speed-limit', (req, res) ->
 
     tasks = [
         getAddress.bind(@, req.query.latitude, req.query.longitude)
-        getSpeedLimit
+        getSpeedLimit.bind(@, req.query.latitude, req.query.longitude)
     ]
 
     async.waterfall tasks, sendResponse
