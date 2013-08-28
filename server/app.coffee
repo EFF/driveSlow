@@ -14,6 +14,7 @@ app = express()
 app.configure () ->
     app.use express.static(publicDirectory)
 
+    app.locals.apiKey = process.env.MAPS_API_KEY
     app.set 'views', __dirname + '/views'
     app.set 'view engine', 'jade'
 
@@ -31,11 +32,10 @@ app.get '/', (req, res) ->
 
 app.get '/api/speed-limit', (req, res) ->
     getAddress = (latitude, longitude, callback) ->
-        key = 'Fmjtd%7Cluub2g01n9%2C8a%3Do5-9ub5gy'
         json = "{location:{latLng:{lat:#{latitude},lng:#{longitude}}}}"
         options =
             json: true
-            url: "http://open.mapquestapi.com/geocoding/v1/reverse?key=#{key}&json=#{json}"
+            url: "http://open.mapquestapi.com/geocoding/v1/reverse?key=#{process.env.MAPQUEST_API_KEY}&json=#{json}"
 
         request options, (err, response, body) ->
             if err
@@ -66,11 +66,10 @@ app.get '/api/speed-limit', (req, res) ->
             url: 'http://openify-api-staging.herokuapp.com/v0/datasets/7bbe7e06-d820-4481-ada2-2ad9bd955106:1/data'
             qs:
                 fields: 'limite'
-                apiKey: 'a4a2d560-037c-11e3-a03f-f23c91aec05e'
-                secretKey: 'a4a2da2e-037c-11e3-a03f-f23c91aec05e'
+                apiKey: '77993f4a-e4cd-4403-b030-6f05b40d95cf'
+                secretKey: 'ca5a7809-3d94-4951-b2df-024e0bf8bd3e'
 
         request options, (err, response, body) ->
-            console.log 'asdasd', err, body
             callback null, body.data[0].fields.limite, street
 
     sendResponse = (err, limit, street) ->

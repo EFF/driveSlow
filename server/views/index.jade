@@ -4,19 +4,20 @@ html(lang="en", ng-app="hack-app")
         title Slow down
         link(href="/stylesheets/style.css", rel="stylesheet")
         link(href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css", rel="stylesheet")
-    body
-        header(ng-controller="MainController")
+    body(ng-controller="MainController")
+        header(ng-class="{'shadowGood': speed<=limit, 'shadowBad': speed>limit}")
             .col-xs-6.speedContainer
                 h5 Votre vitesse
                 div
-                    span.speed {{speed}}
+                    span.speed(ng-class="{'good': speed<=limit, 'bad': speed>limit}") {{speed}}
                     span.label km/h
             .col-xs-6.speedContainer
                 h5 Limite permise
                 div
                     span.speed {{limit}}
                     span.label km/h
-        .map {{coords}}
+        #map-canvas
 
         script(src="//ajax.googleapis.com/ajax/libs/angularjs/1.0.7/angular.min.js")
+        script(src="https://maps.googleapis.com/maps/api/js?key=#{apiKey}&sensor=false")
         script(src="/compiled.js")
