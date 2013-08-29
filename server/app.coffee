@@ -56,7 +56,7 @@ app.get '/api/photo-radar-zones', (req, res) ->
 
 
     request options, (error, response, body) ->
-        console.log body
+        res.json body.data
 
 app.get '/api/user-in-zone', (req, res) ->
     query =
