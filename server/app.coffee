@@ -30,6 +30,51 @@ app.configure () ->
 app.get '/', (req, res) ->
     res.render 'index'
 
+app.get '/api/photo-radar-zones', (req, res) ->
+    query =
+        sort: [
+            {
+                _geo_distance:
+                    geo:
+                        lat: req.query.latitude
+                        lng: req.query.longitude
+            }
+        ]
+        query:
+            match_all:{}
+
+    options =
+        method: 'GET'
+        json: query
+        url: 'http://openify-api-staging.herokuapp.com/v0/datasets/3d21936a-db85-41ab-a0b4-b055dbe21467:1/data'
+        qs:
+            apiKey: '77993f4a-e4cd-4403-b030-6f05b40d95cf'
+            secretKey: 'ca5a7809-3d94-4951-b2df-024e0bf8bd3e'
+
+app.get '/api/user-in-zone', (req, res) ->
+    query =
+        match_all: {}
+        filter:
+            geo_shape:
+                sectorBoundaries:
+                    shape:
+                        type: 'point'
+                        coordinates: [
+                            req.query.longitude
+                            req.query.latitude
+                        ]
+    options =
+        method: 'GET'
+        json: query
+        url: 'http://openify-api-staging.herokuapp.com/v0/datasets/3d21936a-db85-41ab-a0b4-b055dbe21467:1/data'
+        qs:
+            apiKey: '77993f4a-e4cd-4403-b030-6f05b40d95cf'
+            secretKey: 'ca5a7809-3d94-4951-b2df-024e0bf8bd3e'
+
+    request options, (error, response, body) ->
+        console.log body.data.length > 0, body.data
+        res.json {data: (body.data.length > 0)}  
+
 app.get '/api/speed-limit', (req, res) ->
     getAddress = (latitude, longitude, callback) ->
         json = "{location:{latLng:{lat:#{latitude},lng:#{longitude}}}}"

@@ -13,7 +13,7 @@ MainController = ($scope, $http) ->
             isFirstIteration = false
         
         # _getSpeedCameraAreas $scope.map.getBounds()
-        # _IsInDangerZone position.coords
+        _IsInDangerZone position.coords
         # _getSpeedLimit position.coords
         _updateMap position
         _updateUserInfo position.coords
@@ -27,6 +27,22 @@ MainController = ($scope, $http) ->
             # draggable: false
 
         $scope.map = new mapsApi.Map(document.getElementById('map-canvas'), mapOptions)
+
+        polygonOptions =
+            map: $scope.map
+            paths: [
+                [
+                    new mapsApi.LatLng(46.836196,-71.226429) #1
+                    new mapsApi.LatLng(46.835741,-71.225806) #3
+                    new mapsApi.LatLng(46.829855,-71.237587) #4
+                    new mapsApi.LatLng(46.830501,-71.238123)
+                    new mapsApi.LatLng(46.836196,-71.226429)
+                ]
+            ]
+            fillColor: 'red'
+            strokeOpacity: 0.5
+            geodesic: true
+        new mapsApi.Polygon(polygonOptions)
 
     _getSpeedLimit = (coords) ->
         options =
@@ -57,23 +73,22 @@ MainController = ($scope, $http) ->
         # if the polygon hasn't been drawn already
         # remove last point from polygon and add polygon object in array
         # do
-        polygonOptions =
-            map: $scope.map
-            paths: [
-                [
-                    new mapsApi.LatLng(46.89227,-71.212867) #1
-                    new mapsApi.LatLng(46.89727  ,  -71.205593) #3
-                    new mapsApi.LatLng(46.891551 ,  -71.212116) #4
-                    # remove last point from polygon, and for each point in polygon, create new LatLng
-                ]
-            ]
-            fillColor: 'red'
-            strokeOpacity: 0.5
-            geodesic: true
-        new mapsApi.Polygon(polygonOptions)
 
     _IsInDangerZone = (coords) ->
-        # TODO: get the shit with $http
+        options=
+            method:'GET'
+            url: '/api/user-in-zone'
+            params:
+                latitude: coords.latitude
+                longitude: coords.longitude
+
+        $http(options)
+            .success((result) ->
+                if result.data
+                    window.alert 'Attention! Vous êtes dans une zone à radar'
+                $scope.isInDangerZone = result
+            ).error (status, error) ->
+                console.log 'error', status, error
 
     _updateUserInfo = (coords) ->
         $scope.$apply () ->
