@@ -4,6 +4,8 @@ MainController = ($scope, $http) ->
     $scope.limit = 0
     mapsApi = google.maps
 
+    polygones = {}
+
     _notSupported = () ->
         window.alert 'You need to accept geolocation to use this app'
 
@@ -11,12 +13,9 @@ MainController = ($scope, $http) ->
         if isFirstIteration
             _createMap position.coords
             isFirstIteration = false
-        # else
-        #     _getDangerZones $scope.map.getBounds()
 
-        
-        # _IsInDangerZone position.coords
-        # _getSpeedLimit position.coords
+        _IsInDangerZone position.coords
+        _getSpeedLimit position.coords
         _updateMap position
         _updateUserInfo position.coords
 
@@ -30,25 +29,9 @@ MainController = ($scope, $http) ->
 
         $scope.map = new mapsApi.Map(document.getElementById('map-canvas'), mapOptions)
 
-        polygonOptions =
-            map: $scope.map
-            paths: [
-                [
-                    new mapsApi.LatLng(46.836196,-71.226429) #1
-                    new mapsApi.LatLng(46.835741,-71.225806) #3
-                    new mapsApi.LatLng(46.829855,-71.237587) #4
-                    new mapsApi.LatLng(46.830501,-71.238123)
-                    new mapsApi.LatLng(46.836196,-71.226429)
-                ]
-            ]
-            fillColor: 'red'
-            strokeOpacity: 0.5
-            geodesic: true
-        new mapsApi.Polygon(polygonOptions)
-
         mapsApi.event.addListener $scope.map, 'bounds_changed', () ->
-            _getDangerZones $scope.map.getBounds()    
-        
+            _getDangerZones $scope.map.getBounds()
+
 
     _getSpeedLimit = (coords) ->
         options =
@@ -68,9 +51,8 @@ MainController = ($scope, $http) ->
     _updateMap = (position) ->
         $scope.map.setCenter(new mapsApi.LatLng(position.coords.latitude, position.coords.longitude))
         $scope.map.setHeading position.coords.heading
-        
+
     _getDangerZones = (bounds) ->
-        console.log bounds
         options =
             method: 'GET'
             url: '/api/photo-radar-zones'
@@ -81,15 +63,24 @@ MainController = ($scope, $http) ->
                 southWest:
                     latitude: bounds.getSouthWest().lat()
                     longitude: bounds.getSouthWest().lng()
-        
-        $http(options).success((result)->
-            ).error (status, error) ->
-            console.log 'error'
 
-        # for each polygons,
-        # if the polygon hasn't been drawn already
-        # remove last point from polygon and add polygon object in array
-        # do
+        $http(options).success((result)->
+            for zone in result
+                if not polygones[zone._id]
+                    polygones[zone._id] = true
+                    polygonOptions =
+                        paths: []
+                        fillColor: 'red'
+                        strokeOpacity: 0.5
+                        geodesic: true
+                    shape = zone._source.sectorBoundaries.coordinates[0]
+                    shape = shape[0...shape.length-1]
+                    for point in shape
+                        polygonOptions.paths.push new mapsApi.LatLng(parseFloat(point[1]),parseFloat(point[0]))
+                    polygone = new mapsApi.Polygon(polygonOptions)
+                    polygone.setMap($scope.map);
+            ).error (status, error) ->
+                console.log 'error'
 
     _IsInDangerZone = (coords) ->
         options =
@@ -114,7 +105,7 @@ MainController = ($scope, $http) ->
 
     initialize = () ->
         window.navigator.geolocation.watchPosition _handleGeolocation, _notSupported, {enableHighAccuracy: true}
-    
+
     initialize()
 
 module.exports = MainController
