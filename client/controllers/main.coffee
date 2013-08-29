@@ -11,9 +11,11 @@ MainController = ($scope, $http) ->
         if isFirstIteration
             _createMap position.coords
             isFirstIteration = false
+        # else
+        #     _getDangerZones $scope.map.getBounds()
+
         
-        # _getSpeedCameraAreas $scope.map.getBounds()
-        _IsInDangerZone position.coords
+        # _IsInDangerZone position.coords
         # _getSpeedLimit position.coords
         _updateMap position
         _updateUserInfo position.coords
@@ -44,6 +46,10 @@ MainController = ($scope, $http) ->
             geodesic: true
         new mapsApi.Polygon(polygonOptions)
 
+        mapsApi.event.addListener $scope.map, 'bounds_changed', () ->
+            _getDangerZones $scope.map.getBounds()    
+        
+
     _getSpeedLimit = (coords) ->
         options =
             method: 'GET'
@@ -63,11 +69,22 @@ MainController = ($scope, $http) ->
         $scope.map.setCenter(new mapsApi.LatLng(position.coords.latitude, position.coords.longitude))
         $scope.map.setHeading position.coords.heading
         
-    _getSpeedCameraAreas = (bounds) ->
-        # options =
-        #     method: 'GET'
-        #     url: '/'
-        # $http options
+    _getDangerZones = (bounds) ->
+        console.log bounds
+        options =
+            method: 'GET'
+            url: '/api/photo-radar-zones'
+            params:
+                northEast:
+                    latitude: bounds.getNorthEast().lat()
+                    longitude: bounds.getNorthEast().lng()
+                southWest:
+                    latitude: bounds.getSouthWest().lat()
+                    longitude: bounds.getSouthWest().lng()
+        
+        $http(options).success((result)->
+            ).error (status, error) ->
+            console.log 'error'
 
         # for each polygons,
         # if the polygon hasn't been drawn already
@@ -75,7 +92,7 @@ MainController = ($scope, $http) ->
         # do
 
     _IsInDangerZone = (coords) ->
-        options=
+        options =
             method:'GET'
             url: '/api/user-in-zone'
             params:
