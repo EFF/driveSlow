@@ -54,8 +54,6 @@ app.get '/api/photo-radar-zones', (req, res) ->
             apiKey: '77993f4a-e4cd-4403-b030-6f05b40d95cf'
             secretKey: 'ca5a7809-3d94-4951-b2df-024e0bf8bd3e'
 
-
-
     request options, (error, response, body) ->
         res.json body.data
 
