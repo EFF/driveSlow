@@ -7,7 +7,6 @@ Speed = ($http) ->
         _get '/api/speed-limit', params, callback
 
     getDangerZones = (northEast, southWest, callback) ->
-        console.log northEast, southWest
         params =
             northEast: northEast
             southWest : southWest
