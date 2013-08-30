@@ -6,7 +6,11 @@ MainController = ($scope, $http, MapService, SpeedService) ->
         $scope.polygons = {}
 
         window.navigator.geolocation.watchPosition _updateLoop, _geoLocationNotSupported, {enableHighAccuracy: true}
-
+        window.addEventListener 'load', _hideBrowserBar
+    
+    _hideBrowserBar = () ->
+        window.scrollTo 0, 1
+        
     _geoLocationNotSupported = () ->
         window.alert 'You need to accept geolocation to use this app'
 

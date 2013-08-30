@@ -3,7 +3,7 @@ MapService = () ->
         mapOptions =
             center: new google.maps.LatLng(center.latitude, center.longitude)
             replace: true
-            zoom: 15
+            zoom: 17
             mapTypeId: google.maps.MapTypeId.ROADMAP
 
         return new google.maps.Map(document.getElementById('map-canvas'), mapOptions)

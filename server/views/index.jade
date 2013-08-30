@@ -1,9 +1,11 @@
 doctype 5
 html(lang="en", ng-app="hack-app")
     head
-        title Slow down
+        title Ralentissez!
         link(href="/stylesheets/style.css", rel="stylesheet")
         link(href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css", rel="stylesheet")
+        meta(name="apple-mobile-web-app-capable", content="yes")
+        meta(name="apple-mobile-web-app-status-bar-style", content="blue")
     body(ng-controller="MainController")
         header(ng-class="{'shadowGood': speed<=limit, 'shadowBad': speed>limit}")
             .col-xs-6.speedContainer
