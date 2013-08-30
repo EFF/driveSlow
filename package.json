@@ -6,12 +6,12 @@
     "express": "~3.3.5",
     "stylus": "~0.37.0",
     "request": "~2.27.0",
-    "async": "~0.2.9"
-  },
-  "devDependencies": {
+    "async": "~0.2.9",
     "grunt": "~0.4.1",
     "grunt-contrib-coffee": "~0.7.0",
-    "grunt-browserify": "~1.2.3",
+    "grunt-browserify": "~1.2.3"
+  },
+  "devDependencies": {
     "grunt-contrib-watch": "~0.5.3",
     "grunt-nodemon": "~0.1.0",
     "grunt-concurrent": "~0.3.1"
