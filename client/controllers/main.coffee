@@ -1,37 +1,31 @@
-MainController = ($scope, $http) ->
-    isFirstIteration = true
-    $scope.speed = 0
-    $scope.limit = 0
+MainController = ($scope, $http, MapService) ->
     mapsApi = google.maps
+    initialize = () ->
+        $scope.speed = 0
+        $scope.limit = 0
+        $scope.isFirstIteration = true
+        $scope.polygons = {}
 
-    polygones = {}
+        window.navigator.geolocation.watchPosition _updateLoop, _geoLocationNotSupported, {enableHighAccuracy: true}
 
-    _notSupported = () ->
+    _geoLocationNotSupported = () ->
         window.alert 'You need to accept geolocation to use this app'
 
-    _handleGeolocation = (position) ->
-        if isFirstIteration
-            _createMap position.coords
-            isFirstIteration = false
+    _updateLoop = (position) ->
+        if $scope.isFirstIteration
+            _initMap position.coords
+            $scope.isFirstIteration = false
 
         _IsInDangerZone position.coords
         _getSpeedLimit position.coords
         _updateMap position
         _updateUserInfo position.coords
 
-    _createMap = (coords) ->
-        mapOptions =
-            center: new mapsApi.LatLng(coords.latitude, coords.longitude)
-            replace: true
-            zoom: 15
-            mapTypeId: google.maps.MapTypeId.ROADMAP
-            # draggable: false
+    _initMap = (coords) ->
+        $scope.map = MapService.create coords
 
-        $scope.map = new mapsApi.Map(document.getElementById('map-canvas'), mapOptions)
-
-        mapsApi.event.addListener $scope.map, 'bounds_changed', () ->
+        google.maps.event.addListener $scope.map, 'bounds_changed', () ->
             _getDangerZones $scope.map.getBounds()
-
 
     _getSpeedLimit = (coords) ->
         options =
@@ -66,19 +60,9 @@ MainController = ($scope, $http) ->
 
         $http(options).success((result)->
             for zone in result
-                if not polygones[zone._id]
-                    polygones[zone._id] = true
-                    polygonOptions =
-                        paths: []
-                        fillColor: 'red'
-                        strokeOpacity: 0.5
-                        geodesic: true
-                    shape = zone._source.sectorBoundaries.coordinates[0]
-                    shape = shape[0...shape.length-1]
-                    for point in shape
-                        polygonOptions.paths.push new mapsApi.LatLng(parseFloat(point[1]),parseFloat(point[0]))
-                    polygone = new mapsApi.Polygon(polygonOptions)
-                    polygone.setMap($scope.map);
+                if not $scope.polygons[zone._id]
+                    $scope.polygons[zone._id] = true
+                    MapService.createPolygon zone._source.sectorBoundaries.coordinates[0], $scope.map
             ).error (status, error) ->
                 console.log 'error'
 
@@ -102,9 +86,6 @@ MainController = ($scope, $http) ->
         $scope.$apply () ->
             $scope.coords = coords
             $scope.speed = Math.ceil(window.parseFloat(coords.speed) * 3.6) if coords.speed
-
-    initialize = () ->
-        window.navigator.geolocation.watchPosition _handleGeolocation, _notSupported, {enableHighAccuracy: true}
 
     initialize()
 
