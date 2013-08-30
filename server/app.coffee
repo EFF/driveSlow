@@ -153,7 +153,7 @@ app.get '/api/speed-limit', (req, res) ->
 
     async.waterfall tasks, sendResponse
 
-port = process.env.PORT | 3000
+port = process.env.PORT || 3000
 
 http.createServer(app).listen port, () ->
     console.log 'server waiting for requests...', port
