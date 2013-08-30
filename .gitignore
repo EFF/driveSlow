@@ -1,5 +1,2 @@
 .DS_Store
-build
-javascripts
 node_modules
-server/env.dev.json
