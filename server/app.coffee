@@ -156,6 +156,6 @@ app.get '/api/speed-limit', (req, res) ->
 port = process.env.PORT | 3000
 
 http.createServer(app).listen port, () ->
-    console.log 'server waiting for requests...'
+    console.log 'server waiting for requests...', port
 
 module.exports = app
