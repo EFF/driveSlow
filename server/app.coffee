@@ -78,7 +78,6 @@ app.get '/api/user-in-zone', (req, res) ->
             secretKey: 'ca5a7809-3d94-4951-b2df-024e0bf8bd3e'
 
     request options, (error, response, body) ->
-        console.log body.data.length > 0, body.data
         res.json {data: (body.data.length > 0)}
 
 app.get '/api/speed-limit', (req, res) ->

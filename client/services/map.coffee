@@ -23,9 +23,15 @@ MapService = () ->
         
         new google.maps.Polygon(polygonOptions)
 
-    return {
+    updateMap = (map, coords) ->
+        map.setCenter new google.maps.LatLng(coords.latitude, coords.longitude)
+        map.setHeading coords.heading
+
+    service =
         create: create
         createPolygon: createPolygon
-    }
+        updateMap: updateMap
+
+    return service
 
 module.exports = MapService

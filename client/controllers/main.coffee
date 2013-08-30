@@ -1,5 +1,4 @@
 MainController = ($scope, $http, MapService, SpeedService) ->
-    mapsApi = google.maps
     initialize = () ->
         $scope.speed = 0
         $scope.limit = 0
@@ -12,71 +11,53 @@ MainController = ($scope, $http, MapService, SpeedService) ->
         window.alert 'You need to accept geolocation to use this app'
 
     _updateLoop = (position) ->
+        coords = position.coords
         if $scope.isFirstIteration
-            _initMap position.coords
+            _initMap coords
             $scope.isFirstIteration = false
 
-        _IsInDangerZone position.coords
-        _getSpeedLimit position.coords
-        _updateMap position
-        _updateUserInfo position.coords
+        _updateCurrentSpeed coords
+        MapService.updateMap $scope.map, coords
+        SpeedService.isInDangerZone coords.latitude, coords.longitude, _handleIsInDangerZone
+        SpeedService.getSpeedLimit coords.latitude, coords.longitude, _handleSpeedLimit
 
     _initMap = (coords) ->
         $scope.map = MapService.create coords
 
         google.maps.event.addListener $scope.map, 'bounds_changed', () ->
-            _getDangerZones $scope.map.getBounds()
+            northEast =
+                latitude: $scope.map.getBounds().getNorthEast().lat()
+                longitude: $scope.map.getBounds().getNorthEast().lng()
+            southWest =
+                latitude: $scope.map.getBounds().getSouthWest().lat()
+                longitude: $scope.map.getBounds().getSouthWest().lng()
 
-    _getSpeedLimit = (coords) ->
-        SpeedService.getSpeedLimit coords.latitude, coords.longitude, (error, result) ->
-            if error
-                console.log 'err', error.error
-            else
-                $scope.limit = result.data.limit
+            SpeedService.getDangerZones northEast, southWest, _handleDangerZones
 
-    _updateMap = (position) ->
-        $scope.map.setCenter(new mapsApi.LatLng(position.coords.latitude, position.coords.longitude))
-        $scope.map.setHeading position.coords.heading
+    _handleSpeedLimit = (error, result) ->
+        if error
+            console.log 'error', error.error
+        else
+            $scope.limit = result.data.limit
 
-    _getDangerZones = (bounds) ->
-        options =
-            method: 'GET'
-            url: '/api/photo-radar-zones'
-            params:
-                northEast:
-                    latitude: bounds.getNorthEast().lat()
-                    longitude: bounds.getNorthEast().lng()
-                southWest:
-                    latitude: bounds.getSouthWest().lat()
-                    longitude: bounds.getSouthWest().lng()
-
-        $http(options).success((result)->
+    _handleDangerZones = (error, result) ->
+        if error
+            console.log 'error', error.error
+        else
             for zone in result
                 if not $scope.polygons[zone._id]
                     $scope.polygons[zone._id] = true
                     MapService.createPolygon zone._source.sectorBoundaries.coordinates[0], $scope.map
-            ).error (status, error) ->
-                console.log 'error'
 
-    _IsInDangerZone = (coords) ->
-        options =
-            method:'GET'
-            url: '/api/user-in-zone'
-            params:
-                latitude: coords.latitude
-                longitude: coords.longitude
+    _handleIsInDangerZone = (error, result) ->
+        if error
+            console.log 'error', error.error
+        else
+            if result.data
+                window.alert 'Attention! Vous êtes dans une zone à radar'
 
-        $http(options)
-            .success((result) ->
-                if result.data
-                    window.alert 'Attention! Vous êtes dans une zone à radar'
-                $scope.isInDangerZone = result
-            ).error (status, error) ->
-                console.log 'error', status, error
-
-    _updateUserInfo = (coords) ->
+    _updateCurrentSpeed = (coords) ->
         $scope.$apply () ->
-            $scope.coords = coords
             $scope.speed = Math.ceil(window.parseFloat(coords.speed) * 3.6) if coords.speed
 
     initialize()

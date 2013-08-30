@@ -6,6 +6,21 @@ Speed = ($http) ->
 
         _get '/api/speed-limit', params, callback
 
+    getDangerZones = (northEast, southWest, callback) ->
+        console.log northEast, southWest
+        params =
+            northEast: northEast
+            southWest : southWest
+
+        _get '/api/photo-radar-zones', params, callback
+
+    isInDangerZone = (latitude, longitude, callback) ->
+        params =
+            latitude: latitude
+            longitude: longitude
+
+        _get '/api/user-in-zone', params, callback
+
     _get = (url, params, callback) ->
         options =
             method: 'GET'
@@ -24,6 +39,8 @@ Speed = ($http) ->
 
     service = 
         getSpeedLimit : getSpeedLimit
+        getDangerZones: getDangerZones
+        isInDangerZone: isInDangerZone
     return service
 
 module.exports = Speed
