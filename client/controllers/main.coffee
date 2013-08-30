@@ -1,4 +1,4 @@
-MainController = ($scope, $http, MapService) ->
+MainController = ($scope, $http, MapService, SpeedService) ->
     mapsApi = google.maps
     initialize = () ->
         $scope.speed = 0
@@ -28,19 +28,11 @@ MainController = ($scope, $http, MapService) ->
             _getDangerZones $scope.map.getBounds()
 
     _getSpeedLimit = (coords) ->
-        options =
-            method: 'GET'
-            url: '/api/speed-limit'
-            params:
-                latitude: coords.latitude
-                longitude: coords.longitude
-
-        $http(options)
-            .success((result) ->
+        SpeedService.getSpeedLimit coords.latitude, coords.longitude, (error, result) ->
+            if error
+                console.log 'err', error.error
+            else
                 $scope.limit = result.data.limit
-            )
-            .error (status, error) ->
-                console.log 'error', status, error
 
     _updateMap = (position) ->
         $scope.map.setCenter(new mapsApi.LatLng(position.coords.latitude, position.coords.longitude))

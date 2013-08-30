@@ -1,5 +1,6 @@
 MainController = require './controllers/main'
 MapService = require './services/map'
+SpeedService = require './services/speed'
 
 class App
     constructor: () ->
@@ -13,8 +14,9 @@ class App
 
     registerServices: () =>
         @module.factory 'MapService', [MapService]
+        @module.factory 'SpeedService', ['$http', SpeedService]
 
     registerControllers: () =>
-        @module.controller 'MainController', ['$scope', '$http', 'MapService', MainController]
+        @module.controller 'MainController', ['$scope', '$http', 'MapService', 'SpeedService', MainController]
 
 module.exports = new App()
