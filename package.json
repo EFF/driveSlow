@@ -8,6 +8,7 @@
     "request": "~2.27.0",
     "async": "~0.2.9",
     "grunt": "~0.4.1",
+    "grunt-cli": "~0.1.9",
     "grunt-contrib-coffee": "~0.7.0",
     "grunt-browserify": "~1.2.3"
   },
